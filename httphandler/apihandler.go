@@ -68,12 +68,12 @@ func (h *APIHandler) createRepo(w http.ResponseWriter, r *http.Request) {
 	logFields, logger := logFieldsForRequest(r)
 
 	repoInfo := svnman.CreateRepo{}
-	if err := decodeJSON(w, r.Body, &repoInfo, logFields); err != nil {
+	if err := decodeJSON(w, r, &repoInfo, logFields); err != nil {
 		return
 	}
 
 	logger.Info("going to create repository")
-	if err := h.svn.CreateRepo(repoInfo); err != nil {
+	if err := h.svn.CreateRepo(repoInfo, logFields); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		logger.WithError(err).Error("unable to create repository")
 	}
