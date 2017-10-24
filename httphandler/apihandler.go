@@ -30,14 +30,14 @@ func (h *APIHandler) AddRoutes(r *mux.Router) {
 	r.HandleFunc("/hooks", h.listAvailableHooks).Methods("GET")
 }
 
-func logFieldsForRequest(r *http.Request) log.Fields {
+func logFieldsForRequest(r *http.Request) (log.Fields, *log.Entry) {
 	logFields := log.Fields{
 		"remote_addr": r.RemoteAddr,
 		"url":         r.URL,
 		"method":      r.Method,
 	}
 
-	return logFields
+	return logFields, log.WithFields(logFields)
 }
 
 // Returns the repo ID from the request, or "" when there was no (valid) one.
@@ -59,14 +59,13 @@ func getRepoID(w http.ResponseWriter, r *http.Request, logFields log.Fields) str
 }
 
 func (h *APIHandler) notImplemented(w http.ResponseWriter, r *http.Request) {
-	logger := log.WithFields(logFieldsForRequest(r))
+	_, logger := logFieldsForRequest(r)
 	logger.Warning("handler for this URL not implemented")
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
 func (h *APIHandler) createRepo(w http.ResponseWriter, r *http.Request) {
-	logFields := logFieldsForRequest(r)
-	logger := log.WithFields(logFields)
+	logFields, logger := logFieldsForRequest(r)
 
 	repoInfo := svnman.CreateRepo{}
 	if err := decodeJSON(w, r.Body, &repoInfo, logFields); err != nil {
@@ -81,13 +80,12 @@ func (h *APIHandler) createRepo(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *APIHandler) modifyAccess(w http.ResponseWriter, r *http.Request) {
-	logFields := logFieldsForRequest(r)
+	logFields, logger := logFieldsForRequest(r)
 	repoID := getRepoID(w, r, logFields)
 	if repoID == "" {
 		return
 	}
 
-	logger := log.WithFields(logFields)
 	logger.Info("going to modify access on repository")
 
 	h.notImplemented(w, r)
