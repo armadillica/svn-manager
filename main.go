@@ -12,7 +12,7 @@ import (
 
 	stdlog "log"
 
-	"github.com/armadillica/flamenco-manager/flamenco"
+	"github.com/armadillica/flamenco-sync-server/servertools"
 	"github.com/armadillica/svn-manager/httphandler"
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
@@ -75,7 +75,7 @@ func logStartup() {
 
 func shutdown(signum os.Signal) {
 	// Force shutdown after a bit longer than the HTTP server timeout.
-	timeout := flamenco.TimeoutAfter(17 * time.Second)
+	timeout := servertools.TimeoutAfter(17 * time.Second)
 
 	go func() {
 		log.WithField("signal", signum).Info("Signal received, shutting down.")
