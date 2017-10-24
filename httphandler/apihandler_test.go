@@ -50,3 +50,5 @@ func (s *HTTPHandlerTestSuite) TestCreateRepo(c *check.C) {
 	assert.Equal(c, 201, respRec.Code)
 	assert.Equal(c, "/api/repo/4444", respRec.Header().Get("Location"))
 }
+
+// TODO(sybren): test with invalid RepoID, ProjectID, and other values for leakage.
