@@ -5,10 +5,7 @@ type CreateRepo struct {
 	RepoID              string `json:"repo_id"`
 	AuthenticationRealm string `json:"auth_realm"`
 	ProjectID           string `json:"project_id"`
-	Creator             struct {
-		FullName string `json:"full_name"`
-		Email    string `json:"email"`
-	} `json:"creator"`
+	Creator             string `json:"creator"` // Full Name <email> notation.
 }
 
 // ModifyAccess contains the changes in access rules for users of a specific repository.

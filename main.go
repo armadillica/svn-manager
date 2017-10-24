@@ -13,7 +13,9 @@ import (
 	stdlog "log"
 
 	"github.com/armadillica/flamenco-sync-server/servertools"
+	"github.com/armadillica/svn-manager/apache"
 	"github.com/armadillica/svn-manager/httphandler"
+	"github.com/armadillica/svn-manager/svnman"
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
 	"github.com/streadway/amqp"
@@ -35,6 +37,8 @@ var cliArgs struct {
 	debug   bool
 	rabbit  string
 	listen  string
+	repo    string
+	apache  string
 }
 
 func parseCliArgs() {
@@ -43,7 +47,8 @@ func parseCliArgs() {
 	flag.BoolVar(&cliArgs.debug, "debug", false, "Enable debug-level logging.")
 	flag.StringVar(&cliArgs.rabbit, "rabbit", "amqp://guest:guest@localhost:5672/", "RabbitMQ URL.")
 	flag.StringVar(&cliArgs.listen, "listen", "[::]:8085", "Address to listen on for the HTTP interface.")
-
+	flag.StringVar(&cliArgs.repo, "repo", "/media/data/svn", "SVN repositories root directory")
+	flag.StringVar(&cliArgs.apache, "apache", "/etc/apache2/svn", "Apache configuration subdirectory")
 	flag.Parse()
 }
 
@@ -127,8 +132,10 @@ func main() {
 	}
 	defer conn.Close()
 
+	svn := svnman.Create(&apache.Control{}, cliArgs.repo, cliArgs.apache, applicationName, applicationVersion)
+
 	logFields := log.Fields{"listen": cliArgs.listen}
-	httpHandler := httphandler.CreateHTTPHandler(nil)
+	httpHandler := httphandler.CreateHTTPHandler(svn)
 	router := setupHTTPRoutes(httpHandler)
 
 	// Create the HTTP server before allowing the shutdown signal Handler

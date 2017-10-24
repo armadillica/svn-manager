@@ -27,3 +27,22 @@ func (s *ValidationTestSuite) TestValidRepoIDHappy(t *check.C) {
 	assert.True(t, ValidRepoID("1234"))
 	assert.True(t, ValidRepoID("a-asdc_D"))
 }
+
+func (s *ValidationTestSuite) TestValidAuthRealmUnhappy(t *check.C) {
+	assert.False(t, ValidAuthRealm(""))
+	assert.False(t, ValidAuthRealm("1"))
+	assert.False(t, ValidAuthRealm("12"))
+	assert.False(t, ValidAuthRealm("123"))
+	assert.False(t, ValidAuthRealm("nonbreaking\u00a0space"))
+	assert.False(t, ValidAuthRealm("newline\nhere"))
+}
+
+func (s *ValidationTestSuite) TestValidAuthRealmHappy(t *check.C) {
+	assert.True(t, ValidAuthRealm("peanuts"))
+	assert.True(t, ValidAuthRealm("1234"))
+	assert.True(t, ValidAuthRealm("a-asdc_D"))
+	assert.True(t, ValidAuthRealm("über"))
+	assert.True(t, ValidAuthRealm("аррӏе"))
+	assert.True(t, ValidAuthRealm("with regular space"))
+	assert.True(t, ValidAuthRealm(`realm with "quotes"`))
+}

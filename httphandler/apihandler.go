@@ -11,11 +11,11 @@ import (
 
 // APIHandler serves HTTP requests and forwards connections to the SVN Man.
 type APIHandler struct {
-	svn *svnman.SVNMan
+	svn svnman.Manager
 }
 
 // CreateHTTPHandler creates a new HTTP request handler that's bound to the given SVN Man.
-func CreateHTTPHandler(svn *svnman.SVNMan) *APIHandler {
+func CreateHTTPHandler(svn svnman.Manager) *APIHandler {
 	return &APIHandler{svn}
 }
 
@@ -73,12 +73,24 @@ func (h *APIHandler) createRepo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if !svnman.ValidRepoID(repoInfo.RepoID) {
+		logger.WithField("repo_id", repoInfo.RepoID).Warning("invalid repo ID given")
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprint(w, "bad repository ID")
+		return
+	}
+
 	logger.Info("going to create repository")
 	if err := h.svn.CreateRepo(repoInfo, logFields); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprint(w, "unable to create repository")
 		logger.WithError(err).Error("unable to create repository")
 	}
+
+	// TODO(sybren): see if gorilla-mux can do this reversal for us.
+	// At least we should refactor the '/api' prefix
+	w.Header().Set("Location", "/api/repo/"+repoInfo.RepoID)
+	w.WriteHeader(http.StatusCreated)
 }
 
 func (h *APIHandler) modifyAccess(w http.ResponseWriter, r *http.Request) {
