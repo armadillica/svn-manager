@@ -1,6 +1,7 @@
 package httphandler
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/armadillica/svn-manager/svnman"
@@ -75,6 +76,7 @@ func (h *APIHandler) createRepo(w http.ResponseWriter, r *http.Request) {
 	logger.Info("going to create repository")
 	if err := h.svn.CreateRepo(repoInfo, logFields); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprint(w, "unable to create repository")
 		logger.WithError(err).Error("unable to create repository")
 	}
 }
