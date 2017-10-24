@@ -87,10 +87,17 @@ func (h *APIHandler) modifyAccess(w http.ResponseWriter, r *http.Request) {
 	if repoID == "" {
 		return
 	}
+	mods := svnman.ModifyAccess{}
+	if err := decodeJSON(w, r, &mods, logFields); err != nil {
+		return
+	}
 
 	logger.Info("going to modify access on repository")
-
-	h.notImplemented(w, r)
+	if err := h.svn.ModifyAccess(repoID, mods, logFields); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprint(w, "unable to create repository")
+		logger.WithError(err).Error("unable to create repository")
+	}
 }
 
 func (h *APIHandler) reportAccess(w http.ResponseWriter, r *http.Request) {

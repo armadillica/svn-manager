@@ -10,3 +10,12 @@ type CreateRepo struct {
 		Email    string `json:"email"`
 	} `json:"creator"`
 }
+
+// ModifyAccess contains the changes in access rules for users of a specific repository.
+type ModifyAccess struct {
+	Grant []struct {
+		Username string `json:"username"`
+		Password string `json:"password"` // always bcrypted and base64-encoded.
+	} `json:"grant"`
+	Revoke []string `json:"revoke"` // list of usernames
+}
