@@ -81,10 +81,12 @@ func (h *APIHandler) createRepo(w http.ResponseWriter, r *http.Request) {
 	if err == svnman.ErrAlreadyExists {
 		w.WriteHeader(http.StatusBadRequest)
 		fmt.Fprintf(w, "repository %q already exists", repoInfo.RepoID)
+		return
 	} else if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(w, "unable to create repository: %s", err.Error())
 		logger.WithError(err).Error("unable to create repository")
+		return
 	}
 
 	route, err := h.r.Get("get-repo").URL("repo-id", repoInfo.RepoID)
