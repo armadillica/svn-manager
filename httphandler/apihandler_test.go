@@ -25,10 +25,29 @@ func (s *HTTPHandlerTestSuite) SetUpTest(c *check.C) {
 func (s *HTTPHandlerTestSuite) TearDownTest(c *check.C) {
 }
 
-func (s *HTTPHandlerTestSuite) TestCreateRepo(c *check.C) {
+func (s *HTTPHandlerTestSuite) mockSVN(c *check.C) (*gomock.Controller, *svnman.MockManager) {
 	mockCtrl := gomock.NewController(c)
 	mockSVN := svnman.NewMockManager(mockCtrl) // mocked Manager, not a mock-manager.
 	s.api.svn = mockSVN
+
+	return mockCtrl, mockSVN
+}
+
+func (s *HTTPHandlerTestSuite) createRepo(c *check.C, repoInfo svnman.CreateRepo) *httptest.ResponseRecorder {
+	body, err := json.Marshal(repoInfo)
+	assert.Nil(c, err, "marshalling failed")
+
+	req, _ := http.NewRequest("POST", "/api/repo", bytes.NewReader(body))
+	req.Header.Set("Content-Type", "application/json")
+
+	respRec := httptest.NewRecorder()
+	s.api.createRepo(respRec, req)
+
+	return respRec
+}
+
+func (s *HTTPHandlerTestSuite) TestCreateRepo(c *check.C) {
+	mockCtrl, mockSVN := s.mockSVN(c)
 	defer mockCtrl.Finish()
 
 	repoInfo := svnman.CreateRepo{
@@ -40,12 +59,7 @@ func (s *HTTPHandlerTestSuite) TestCreateRepo(c *check.C) {
 
 	mockSVN.EXPECT().CreateRepo(repoInfo, gomock.Any()).Times(1)
 
-	body, err := json.Marshal(&repoInfo)
-	assert.Nil(c, err, "marshalling failed")
-	req, _ := http.NewRequest("POST", "/api/repo", bytes.NewReader(body))
-	req.Header.Set("Content-Type", "application/json")
-	respRec := httptest.NewRecorder()
-	s.api.createRepo(respRec, req)
+	respRec := s.createRepo(c, repoInfo)
 
 	assert.Equal(c, 201, respRec.Code)
 	assert.Equal(c, "/api/repo/4444", respRec.Header().Get("Location"))
