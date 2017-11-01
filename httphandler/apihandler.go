@@ -83,7 +83,7 @@ func (h *APIHandler) createRepo(w http.ResponseWriter, r *http.Request) {
 	logger.Info("going to create repository")
 	if err := h.svn.CreateRepo(repoInfo, logFields); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprint(w, "unable to create repository")
+		fmt.Fprintf(w, "unable to create repository: %s", err.Error())
 		logger.WithError(err).Error("unable to create repository")
 	}
 
@@ -107,8 +107,8 @@ func (h *APIHandler) modifyAccess(w http.ResponseWriter, r *http.Request) {
 	logger.Info("going to modify access on repository")
 	if err := h.svn.ModifyAccess(repoID, mods, logFields); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprint(w, "unable to create repository")
-		logger.WithError(err).Error("unable to create repository")
+		fmt.Fprintf(w, "unable to modify htpasswd: %s", err.Error())
+		logger.WithError(err).Error("unable to modify htpasswd")
 	}
 }
 
