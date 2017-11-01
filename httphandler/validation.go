@@ -6,7 +6,6 @@ import (
 	"path/filepath"
 	"regexp"
 
-	"github.com/armadillica/svn-manager/svnman"
 	"github.com/kardianos/osext"
 	"github.com/xeipuuv/gojsonschema"
 )
@@ -104,9 +103,4 @@ func validRequest(schemaName string, document interface{}) (*gojsonschema.Result
 		return nil, err
 	}
 	return result, nil
-}
-
-// ValidCreateRepo validates the CreateRepo document, returning validation results.
-func ValidCreateRepo(document *svnman.CreateRepo) (*gojsonschema.Result, error) {
-	return validRequest("create_repo", document)
 }
