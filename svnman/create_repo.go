@@ -36,8 +36,7 @@ type repoinfo struct {
 
 // CreateRepo creates a repository and Apache location directive.
 func (svn *SVNMan) CreateRepo(repoInfo CreateRepo, logFields log.Fields) error {
-	prefix := string([]rune(repoInfo.RepoID)[:2])
-	repodir := filepath.Join(svn.repoRoot, prefix, repoInfo.RepoID)
+	repodir := svn.repoPath(repoInfo.RepoID)
 	apafile := filepath.Join(svn.apacheConfigDir, "svn-"+repoInfo.RepoID+".conf")
 
 	logger := log.WithFields(logFields).WithFields(log.Fields{

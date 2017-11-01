@@ -2,6 +2,7 @@ package svnman
 
 import (
 	"errors"
+	"path/filepath"
 
 	"github.com/armadillica/svn-manager/apache"
 	log "github.com/sirupsen/logrus"
@@ -38,4 +39,9 @@ func Create(restarter apache.Restarter, repoRoot, apacheConfigDir, appName, appV
 		"apache":    apacheConfigDir,
 	}).Info("creating SVN manager")
 	return &SVNMan{restarter, repoRoot, apacheConfigDir, appName, appVersion}
+}
+
+func (svn *SVNMan) repoPath(repoID string) string {
+	prefix := string([]rune(repoID)[:2])
+	return filepath.Join(svn.repoRoot, prefix, repoID)
 }

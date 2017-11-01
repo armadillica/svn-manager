@@ -18,7 +18,7 @@ func (s *SVNManTestSuite) loadHtpasswd(t *check.C, repoID string) []string {
 		t.Fatalf("Unable to open %s: %s", passwdfile, err)
 	}
 	htpasswd := string(htpasswdBytes)
-	lines := strings.Split(htpasswd, "\n")
+	lines := strings.Split(strings.TrimSpace(htpasswd), "\n")
 	return lines
 }
 
@@ -44,8 +44,8 @@ func (s *SVNManTestSuite) TestModifyAccessHappy(t *check.C) {
 	}
 
 	lines := s.loadHtpasswd(t, repoInfo.RepoID)
-	assert.Equal(t, 1, len(lines))
-	oneline := strings.SplitN(lines[0], ":", 1)
+	assert.Equal(t, 1, len(lines), "strange line count, file content: %s", strings.Join(lines, `\\`))
+	oneline := strings.SplitN(lines[0], ":", 2)
 	assert.Equal(t, "testkees", oneline[0])
 	assert.Equal(t, "$2y$05$cWVQLHS58K7fIKjz3tU52eBI2sxbE3KdAfZN0CJN", oneline[1])
 
@@ -61,11 +61,24 @@ func (s *SVNManTestSuite) TestModifyAccessHappy(t *check.C) {
 
 	lines = s.loadHtpasswd(t, repoInfo.RepoID)
 	assert.Equal(t, 2, len(lines))
-	oneline = strings.SplitN(lines[0], ":", 1)
+	oneline = strings.SplitN(lines[0], ":", 2)
 	assert.Equal(t, "testkees", oneline[0])
 	assert.Equal(t, "$2y$05$cWZN0CJN", oneline[1])
 
-	oneline = strings.SplitN(lines[1], ":", 1)
+	oneline = strings.SplitN(lines[1], ":", 2)
+	assert.Equal(t, "anotherone", oneline[0])
+	assert.Equal(t, "$2y$05$cW---ZN0CJN", oneline[1])
+
+	// Revoke access from one existing and one non-existing user.
+	if err := s.svn.ModifyAccess(repoInfo.RepoID, ModifyAccess{
+		Revoke: []string{"testkees", "nonexisting"},
+	}, logFields); err != nil {
+		t.Fatalf("Unable to re-modify access: %s", err)
+	}
+
+	lines = s.loadHtpasswd(t, repoInfo.RepoID)
+	assert.Equal(t, 1, len(lines))
+	oneline = strings.SplitN(lines[0], ":", 2)
 	assert.Equal(t, "anotherone", oneline[0])
 	assert.Equal(t, "$2y$05$cW---ZN0CJN", oneline[1])
 }
