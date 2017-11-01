@@ -47,7 +47,7 @@ func decodeJSON(w http.ResponseWriter, r *http.Request, document interface{}, sc
 }
 
 func writeValidationError(result *gojsonschema.Result, err error, w http.ResponseWriter, logFields log.Fields) {
-	logger := log.WithFields(logFields)
+	logger := log.WithFields(logFields).WithError(err)
 
 	if err != nil {
 		logger.Warning("received JSON that was unvalidatable")
