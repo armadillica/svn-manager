@@ -66,3 +66,20 @@ func (s *HTTPHandlerTestSuite) TestCreateRepo(c *check.C) {
 }
 
 // TODO(sybren): test with invalid RepoID, ProjectID, and other values for leakage.
+
+func (s *HTTPHandlerTestSuite) TestCreateRepoBadRepoID(c *check.C) {
+	mockCtrl, mockSVN := s.mockSVN(c)
+	defer mockCtrl.Finish()
+
+	repoInfo := svnman.CreateRepo{
+		RepoID:              "in valid",
+		AuthenticationRealm: "quoted \"strings\" should be válide",
+		ProjectID:           "97123333214",
+		Creator:             "creator <email@example.com>",
+	}
+
+	mockSVN.EXPECT().CreateRepo(repoInfo, gomock.Any()).Times(0)
+
+	respRec := s.createRepo(c, repoInfo)
+	assert.Equal(c, http.StatusBadRequest, respRec.Code)
+}
