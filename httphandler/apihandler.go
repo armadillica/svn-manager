@@ -12,16 +12,19 @@ import (
 // APIHandler serves HTTP requests and forwards connections to the SVN Man.
 type APIHandler struct {
 	svn svnman.Manager
+	r   *mux.Router // the router we're attached to
 }
 
 // CreateHTTPHandler creates a new HTTP request handler that's bound to the given SVN Man.
 func CreateHTTPHandler(svn svnman.Manager) *APIHandler {
-	return &APIHandler{svn}
+	return &APIHandler{svn, nil}
 }
 
 // AddRoutes adds the web endpoints to the router.
 func (h *APIHandler) AddRoutes(r *mux.Router) {
+	h.r = r
 	r.HandleFunc("/repo", h.createRepo).Methods("POST")
+	r.HandleFunc("/repo/{repo-id}", h.getRepo).Methods("GET").Name("get-repo")
 	r.HandleFunc("/repo/{repo-id}", h.deleteRepo).Methods("DELETE")
 	r.HandleFunc("/repo/{repo-id}/block", h.blockUnblockRepo).Methods("POST")
 	r.HandleFunc("/repo/{repo-id}/access", h.modifyAccess).Methods("POST")
@@ -80,9 +83,12 @@ func (h *APIHandler) createRepo(w http.ResponseWriter, r *http.Request) {
 		logger.WithError(err).Error("unable to create repository")
 	}
 
-	// TODO(sybren): see if gorilla-mux can do this reversal for us.
-	// At least we should refactor the '/api' prefix
-	w.Header().Set("Location", "/api/repo/"+repoInfo.RepoID)
+	route, err := h.r.Get("get-repo").URL("repo-id", repoInfo.RepoID)
+	if err != nil {
+		logger.WithError(err).WithField("repo_id", repoInfo.RepoID).Error("unable to find URL for repository")
+	} else {
+		w.Header().Set("Location", route.String())
+	}
 	w.WriteHeader(http.StatusCreated)
 }
 
@@ -106,6 +112,16 @@ func (h *APIHandler) modifyAccess(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *APIHandler) reportAccess(w http.ResponseWriter, r *http.Request) {
+	h.notImplemented(w, r)
+}
+
+func (h *APIHandler) getRepo(w http.ResponseWriter, r *http.Request) {
+	logFields, _ := logFieldsForRequest(r)
+	repoID := getRepoID(w, r, logFields)
+	if repoID == "" {
+		return
+	}
+
 	h.notImplemented(w, r)
 }
 

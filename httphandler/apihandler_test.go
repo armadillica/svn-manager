@@ -8,18 +8,22 @@ import (
 
 	"github.com/armadillica/svn-manager/svnman"
 	"github.com/golang/mock/gomock"
+	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/assert"
 	check "gopkg.in/check.v1"
 )
 
 type HTTPHandlerTestSuite struct {
-	api *APIHandler
+	api   *APIHandler
+	route *mux.Router
 }
 
 var _ = check.Suite(&HTTPHandlerTestSuite{})
 
 func (s *HTTPHandlerTestSuite) SetUpTest(c *check.C) {
+	s.route = mux.NewRouter()
 	s.api = CreateHTTPHandler(nil)
+	s.api.AddRoutes(s.route.PathPrefix("/unittests").Subrouter())
 }
 
 func (s *HTTPHandlerTestSuite) TearDownTest(c *check.C) {
@@ -61,7 +65,7 @@ func (s *HTTPHandlerTestSuite) TestCreateRepo(c *check.C) {
 	respRec := s.createRepo(c, repoInfo)
 
 	assert.Equal(c, 201, respRec.Code)
-	assert.Equal(c, "/api/repo/4444", respRec.Header().Get("Location"))
+	assert.Equal(c, "/unittests/repo/4444", respRec.Header().Get("Location"))
 }
 
 // TODO(sybren): test with invalid RepoID, ProjectID, and other values for leakage.
