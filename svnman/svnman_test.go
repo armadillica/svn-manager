@@ -108,7 +108,7 @@ func (s *SVNManTestSuite) TestCreateRepoHappy(t *check.C) {
 		assert.Fail(t, err.Error(), "file %q should exist", apache)
 	} else {
 		apa := string(apabytes)
-		assert.Contains(t, apa, "svn/1234")
+		assert.Contains(t, apa, "/repo/1234")
 		assert.Contains(t, apa, repo)
 		assert.Contains(t, apa, "59eefa9cf488554678cae036", "Project ID should be mentioned in Apache config file")
 		assert.Contains(t, apa, `"\"je moeder\""`, "Auth realm should be quoted properly")

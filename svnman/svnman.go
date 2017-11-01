@@ -23,7 +23,7 @@ var (
 )
 
 const apacheTemplate = `// Location directive for project %q
-<Location /svn/%s>
+<Location /repo/%s>
     DAV svn
     SVNPath %s
     AuthType Basic
