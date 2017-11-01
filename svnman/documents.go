@@ -2,10 +2,9 @@ package svnman
 
 // CreateRepo is contains the info required to create a repository.
 type CreateRepo struct {
-	RepoID              string `json:"repo_id"`
-	AuthenticationRealm string `json:"auth_realm"`
-	ProjectID           string `json:"project_id"`
-	Creator             string `json:"creator"` // Full Name <email> notation.
+	RepoID    string `json:"repo_id"`
+	ProjectID string `json:"project_id"`
+	Creator   string `json:"creator"` // Full Name <email> notation.
 }
 
 // ModifyAccess contains the changes in access rules for users of a specific repository.

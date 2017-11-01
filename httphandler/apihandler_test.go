@@ -51,10 +51,9 @@ func (s *HTTPHandlerTestSuite) TestCreateRepo(c *check.C) {
 	defer mockCtrl.Finish()
 
 	repoInfo := svnman.CreateRepo{
-		RepoID:              "4444",
-		AuthenticationRealm: "quoted \"strings\" should be válide",
-		ProjectID:           "97123333214",
-		Creator:             "creator <email@example.com>",
+		RepoID:    "4444",
+		ProjectID: "8afae1eb1d171833df73416b",
+		Creator:   "creator <email@example.com>",
 	}
 
 	mockSVN.EXPECT().CreateRepo(repoInfo, gomock.Any()).Times(1)
@@ -72,10 +71,41 @@ func (s *HTTPHandlerTestSuite) TestCreateRepoBadRepoID(c *check.C) {
 	defer mockCtrl.Finish()
 
 	repoInfo := svnman.CreateRepo{
-		RepoID:              "in valid",
-		AuthenticationRealm: "quoted \"strings\" should be válide",
-		ProjectID:           "97123333214",
-		Creator:             "creator <email@example.com>",
+		RepoID:    "in valid",
+		ProjectID: "8afae1eb1d171833df73416b",
+		Creator:   "creator <email@example.com>",
+	}
+
+	mockSVN.EXPECT().CreateRepo(repoInfo, gomock.Any()).Times(0)
+
+	respRec := s.createRepo(c, repoInfo)
+	assert.Equal(c, http.StatusBadRequest, respRec.Code)
+}
+
+func (s *HTTPHandlerTestSuite) TestCreateRepoBadProjectID(c *check.C) {
+	mockCtrl, mockSVN := s.mockSVN(c)
+	defer mockCtrl.Finish()
+
+	repoInfo := svnman.CreateRepo{
+		RepoID:    "valid",
+		ProjectID: "8afae1eb1d171\n833df73416b",
+		Creator:   "creator <email@example.com>",
+	}
+
+	mockSVN.EXPECT().CreateRepo(repoInfo, gomock.Any()).Times(0)
+
+	respRec := s.createRepo(c, repoInfo)
+	assert.Equal(c, http.StatusBadRequest, respRec.Code)
+}
+
+func (s *HTTPHandlerTestSuite) TestCreateRepoBadCreator(c *check.C) {
+	mockCtrl, mockSVN := s.mockSVN(c)
+	defer mockCtrl.Finish()
+
+	repoInfo := svnman.CreateRepo{
+		RepoID:    "valid",
+		ProjectID: "8afae1eb1d171833df73416b",
+		Creator:   "creator\n<email@example.com>",
 	}
 
 	mockSVN.EXPECT().CreateRepo(repoInfo, gomock.Any()).Times(0)

@@ -27,7 +27,7 @@ const apacheTemplate = `// Location directive for project %q
     DAV svn
     SVNPath %s
     AuthType Basic
-    AuthName %q
+    AuthName "Blender Cloud SVN repository %q"
     AuthUserFile %s
     Require valid-user
 </Location>
@@ -77,7 +77,6 @@ func (svn *SVNMan) CreateRepo(repoInfo CreateRepo, logFields log.Fields) error {
 
 	logger := log.WithFields(logFields).WithFields(log.Fields{
 		"repo_id":     repoInfo.RepoID,
-		"auth_realm":  repoInfo.AuthenticationRealm,
 		"project_id":  repoInfo.ProjectID,
 		"creator":     repoInfo.Creator,
 		"repo_dir":    repodir,
@@ -130,7 +129,7 @@ func (svn *SVNMan) CreateRepo(repoInfo CreateRepo, logFields log.Fields) error {
 		repoInfo.ProjectID,
 		repoInfo.RepoID,
 		repodir,
-		repoInfo.AuthenticationRealm,
+		fmt.Sprintf("%q", repoInfo.RepoID),
 		htpasswd)
 	if err = ioutil.WriteFile(apafile, []byte(conf), 0644); err != nil {
 		return err

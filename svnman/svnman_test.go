@@ -55,10 +55,9 @@ func (s *SVNManTestSuite) TearDownTest(t *check.C) {
 
 func (s *SVNManTestSuite) TestCreateRepoHappy(t *check.C) {
 	repoInfo := CreateRepo{
-		RepoID:              "1234",
-		AuthenticationRealm: `"je moeder"`,
-		ProjectID:           "59eefa9cf488554678cae036",
-		Creator:             "dr. Stüvel <sybren@blender.studio>",
+		RepoID:    "1234",
+		ProjectID: "59eefa9cf488554678cae036",
+		Creator:   "dr. Stüvel <sybren@blender.studio>",
 	}
 
 	logFields := log.Fields{"in": "unittest"}
@@ -111,7 +110,7 @@ func (s *SVNManTestSuite) TestCreateRepoHappy(t *check.C) {
 		assert.Contains(t, apa, "/repo/1234")
 		assert.Contains(t, apa, repo)
 		assert.Contains(t, apa, "59eefa9cf488554678cae036", "Project ID should be mentioned in Apache config file")
-		assert.Contains(t, apa, `"\"je moeder\""`, "Auth realm should be quoted properly")
+		assert.Contains(t, apa, `\"1234\"`, "Auth realm should be quoted properly")
 	}
 
 	assert.True(t, s.mr.restartCalled, "Apache restart not requested")

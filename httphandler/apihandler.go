@@ -51,7 +51,7 @@ func getRepoID(w http.ResponseWriter, r *http.Request, logFields log.Fields) str
 	}
 	logFields["repo_id"] = repoID
 
-	if !svnman.ValidRepoID(repoID) {
+	if !ValidRepoID(repoID) {
 		w.WriteHeader(http.StatusBadRequest)
 		log.WithFields(logFields).Warning("invalid repo ID given")
 		return ""
@@ -69,14 +69,7 @@ func (h *APIHandler) createRepo(w http.ResponseWriter, r *http.Request) {
 	logFields, logger := logFieldsForRequest(r)
 
 	repoInfo := svnman.CreateRepo{}
-	if err := decodeJSON(w, r, &repoInfo, logFields); err != nil {
-		return
-	}
-
-	if !svnman.ValidRepoID(repoInfo.RepoID) {
-		logger.WithField("repo_id", repoInfo.RepoID).Warning("invalid repo ID given")
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprint(w, "bad repository ID")
+	if err := decodeJSON(w, r, &repoInfo, "create_repo", logFields); err != nil {
 		return
 	}
 
@@ -100,7 +93,7 @@ func (h *APIHandler) modifyAccess(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	mods := svnman.ModifyAccess{}
-	if err := decodeJSON(w, r, &mods, logFields); err != nil {
+	if err := decodeJSON(w, r, &mods, "modify_access", logFields); err != nil {
 		return
 	}
 
