@@ -140,14 +140,3 @@ func (svn *SVNMan) CreateRepo(repoInfo CreateRepo, logFields log.Fields) error {
 
 	return nil
 }
-
-// ModifyAccess grants or revoke usage access for users on a specific repository.
-func (svn *SVNMan) ModifyAccess(repoID string, mods ModifyAccess, logFields log.Fields) error {
-	logger := log.WithFields(logFields).WithFields(log.Fields{
-		"grant_count":  len(mods.Grant),
-		"revoke_count": len(mods.Revoke),
-	})
-
-	logger.Info("modifying repository access")
-	return ErrNotImplemented
-}
