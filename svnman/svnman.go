@@ -13,6 +13,8 @@ var (
 	ErrNotImplemented = errors.New("SVNMan feature not implemented")
 	// ErrInvalidRepoID is returned when an invalid repository ID is used.
 	ErrInvalidRepoID = errors.New("invalid repository ID given")
+	// ErrAlreadyExists is returned when a request to create a repository fails because it already exists.
+	ErrAlreadyExists = errors.New("repository with this ID already exists")
 )
 
 // Manager contains the interface of SVNMan, for testing/mocking purposes.

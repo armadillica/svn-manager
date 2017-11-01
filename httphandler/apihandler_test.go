@@ -68,8 +68,6 @@ func (s *HTTPHandlerTestSuite) TestCreateRepo(c *check.C) {
 	assert.Equal(c, "/unittests/repo/4444", respRec.Header().Get("Location"))
 }
 
-// TODO(sybren): test with invalid RepoID, ProjectID, and other values for leakage.
-
 func (s *HTTPHandlerTestSuite) TestCreateRepoBadRepoID(c *check.C) {
 	mockCtrl, mockSVN := s.mockSVN(c)
 	defer mockCtrl.Finish()
@@ -81,6 +79,22 @@ func (s *HTTPHandlerTestSuite) TestCreateRepoBadRepoID(c *check.C) {
 	}
 
 	mockSVN.EXPECT().CreateRepo(repoInfo, gomock.Any()).Times(0)
+
+	respRec := s.createRepo(c, repoInfo)
+	assert.Equal(c, http.StatusBadRequest, respRec.Code)
+}
+
+func (s *HTTPHandlerTestSuite) TestCreateRepoAlreadyExists(c *check.C) {
+	mockCtrl, mockSVN := s.mockSVN(c)
+	defer mockCtrl.Finish()
+
+	repoInfo := svnman.CreateRepo{
+		RepoID:    "alreadyexists",
+		ProjectID: "8afae1eb1d171833df73416b",
+		Creator:   "creator <email@example.com>",
+	}
+
+	mockSVN.EXPECT().CreateRepo(repoInfo, gomock.Any()).Times(1).Return(svnman.ErrAlreadyExists)
 
 	respRec := s.createRepo(c, repoInfo)
 	assert.Equal(c, http.StatusBadRequest, respRec.Code)

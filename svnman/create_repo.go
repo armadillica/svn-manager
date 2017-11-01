@@ -46,8 +46,13 @@ func (svn *SVNMan) CreateRepo(repoInfo CreateRepo, logFields log.Fields) error {
 		"repo_dir":    repodir,
 		"apache_file": apafile,
 	})
-	logger.Info("going to create repository")
 
+	if _, err := os.Stat(repodir); err == nil {
+		logger.Warning("repository already exists")
+		return ErrAlreadyExists
+	}
+
+	logger.Info("going to create repository")
 	if err := os.MkdirAll(repodir, 0750); err != nil {
 		return err
 	}

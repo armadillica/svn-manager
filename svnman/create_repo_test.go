@@ -73,3 +73,18 @@ func (s *SVNManTestSuite) TestCreateRepoHappy(t *check.C) {
 
 	assert.True(t, s.mr.restartCalled, "Apache restart not requested")
 }
+
+func (s *SVNManTestSuite) TestCreateRepoAlreadyExists(t *check.C) {
+	repoInfo := CreateRepo{
+		RepoID:    "1234",
+		ProjectID: "59eefa9cf488554678cae036",
+		Creator:   "dr. Stüvel <sybren@blender.studio>",
+	}
+
+	logFields := log.Fields{"in": "unittest"}
+	err := s.svn.CreateRepo(repoInfo, logFields)
+	assert.Nil(t, err, "unable to create repo: %s", err)
+
+	err = s.svn.CreateRepo(repoInfo, logFields)
+	assert.Equal(t, ErrAlreadyExists, err)
+}
