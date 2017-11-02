@@ -13,12 +13,12 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const apacheTemplate = `// Location directive for project %q
+const apacheTemplate = `# Location directive for project %q
 <Location /repo/%s>
     DAV svn
     SVNPath %s
     AuthType Basic
-    AuthName "Blender Cloud SVN repository %q"
+    AuthName %q
     AuthUserFile %s
     Require valid-user
 </Location>
@@ -98,7 +98,7 @@ func (svn *SVNMan) CreateRepo(repoInfo CreateRepo, logFields log.Fields) error {
 		repoInfo.ProjectID,
 		repoInfo.RepoID,
 		repodir,
-		fmt.Sprintf("%q", repoInfo.RepoID),
+		fmt.Sprintf("Blender Cloud SVN repository %q", repoInfo.RepoID),
 		htpasswd)
 	if err = ioutil.WriteFile(apafile, []byte(conf), 0644); err != nil {
 		return err
