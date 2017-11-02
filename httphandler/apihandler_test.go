@@ -16,7 +16,7 @@ var _ = check.Suite(&HTTPHandlerTestSuite{})
 
 func (s *HTTPHandlerTestSuite) SetUpTest(c *check.C) {
 	s.route = mux.NewRouter()
-	s.api = CreateHTTPHandler(nil)
+	s.api = CreateAPIHandler(nil)
 	s.api.AddRoutes(s.route.PathPrefix("/unittests").Subrouter())
 }
 

@@ -14,8 +14,8 @@ type APIHandler struct {
 	r   *mux.Router // the router we're attached to
 }
 
-// CreateHTTPHandler creates a new HTTP request handler that's bound to the given SVN Man.
-func CreateHTTPHandler(svn svnman.Manager) *APIHandler {
+// CreateAPIHandler creates a new HTTP request handler that's bound to the given SVN Man.
+func CreateAPIHandler(svn svnman.Manager) *APIHandler {
 	return &APIHandler{svn, nil}
 }
 

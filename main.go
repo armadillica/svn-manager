@@ -141,8 +141,8 @@ func main() {
 	svn := svnman.Create(apactl, cliArgs.repo, cliArgs.apache, applicationName, applicationVersion)
 
 	logFields := log.Fields{"listen": cliArgs.listen}
-	httpHandler := httphandler.CreateHTTPHandler(svn)
-	router := setupHTTPRoutes(httpHandler)
+	apiHandler := httphandler.CreateAPIHandler(svn)
+	router := setupHTTPRoutes(apiHandler)
 
 	// Create the HTTP server before allowing the shutdown signal Handler
 	// to exist. This prevents a race condition when Ctrl+C is pressed after
@@ -181,6 +181,7 @@ func main() {
 
 func setupHTTPRoutes(apiHandler *httphandler.APIHandler) *mux.Router {
 	r := mux.NewRouter()
+
 	apiHandler.AddRoutes(r.PathPrefix("/api").Subrouter())
 
 	return r
