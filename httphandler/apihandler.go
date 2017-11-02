@@ -27,7 +27,6 @@ func (h *APIHandler) AddRoutes(r *mux.Router) {
 	r.HandleFunc("/repo/{repo-id}", h.deleteRepo).Methods("DELETE")
 	r.HandleFunc("/repo/{repo-id}/block", h.blockUnblockRepo).Methods("POST")
 	r.HandleFunc("/repo/{repo-id}/access", h.modifyAccess).Methods("POST")
-	r.HandleFunc("/repo/{repo-id}/access", h.reportAccess).Methods("GET")
 	r.HandleFunc("/repo/{repo-id}/hooks", h.reportRepoHooks).Methods("GET")
 	r.HandleFunc("/repo/{repo-id}/hooks", h.modifyHooks).Methods("POST")
 	r.HandleFunc("/hooks", h.listAvailableHooks).Methods("GET")
@@ -65,20 +64,6 @@ func (h *APIHandler) notImplemented(w http.ResponseWriter, r *http.Request) {
 	_, logger := logFieldsForRequest(r)
 	logger.Warning("handler for this URL not implemented")
 	w.WriteHeader(http.StatusNotImplemented)
-}
-
-func (h *APIHandler) reportAccess(w http.ResponseWriter, r *http.Request) {
-	h.notImplemented(w, r)
-}
-
-func (h *APIHandler) getRepo(w http.ResponseWriter, r *http.Request) {
-	logFields, _ := logFieldsForRequest(r)
-	repoID := getRepoID(w, r, logFields)
-	if repoID == "" {
-		return
-	}
-
-	h.notImplemented(w, r)
 }
 
 func (h *APIHandler) deleteRepo(w http.ResponseWriter, r *http.Request) {

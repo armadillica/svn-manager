@@ -2,9 +2,11 @@ package svnman
 
 import (
 	"errors"
+	"os"
 	"path/filepath"
 
 	"github.com/armadillica/svn-manager/apache"
+	"github.com/foomo/htpasswd"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -15,12 +17,15 @@ var (
 	ErrInvalidRepoID = errors.New("invalid repository ID given")
 	// ErrAlreadyExists is returned when a request to create a repository fails because it already exists.
 	ErrAlreadyExists = errors.New("repository with this ID already exists")
+	// ErrNotFound indicates that the requested repository does not exist.
+	ErrNotFound = errors.New("repository with this ID does not exist")
 )
 
 // Manager contains the interface of SVNMan, for testing/mocking purposes.
 type Manager interface {
 	CreateRepo(repoInfo CreateRepo, logFields log.Fields) error
 	ModifyAccess(repoID string, mods ModifyAccess, logFields log.Fields) error
+	GetUsernames(repoID string) ([]string, error)
 }
 
 // SVNMan provides SVN management operations.
@@ -46,4 +51,28 @@ func Create(restarter apache.Restarter, repoRoot, apacheConfigDir, appName, appV
 func (svn *SVNMan) repoPath(repoID string) string {
 	prefix := string([]rune(repoID)[:2])
 	return filepath.Join(svn.repoRoot, prefix, repoID)
+}
+
+func (svn *SVNMan) htpasswd(repoID string) string {
+	return filepath.Join(svn.repoPath(repoID), "htpasswd")
+}
+
+// GetUsernames returns the list of usernames that have access to the given repository.
+func (svn *SVNMan) GetUsernames(repoID string) ([]string, error) {
+	filename := svn.htpasswd(repoID)
+	passwds, err := htpasswd.ParseHtpasswdFile(filename)
+	if os.IsNotExist(err) {
+		return nil, ErrNotFound
+	} else if err != nil {
+		return nil, err
+	}
+
+	i := 0
+	names := make([]string, len(passwds))
+	for name := range passwds {
+		names[i] = name
+		i++
+	}
+
+	return names, nil
 }
