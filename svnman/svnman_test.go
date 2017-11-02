@@ -8,11 +8,19 @@ import (
 )
 
 type mockRestarter struct {
-	restartCalled bool
+	restartCalled        bool
+	flushCalled          bool
+	performRestartCalled bool
 }
 
 func (mr *mockRestarter) QueueRestart() {
 	mr.restartCalled = true
+}
+func (mr *mockRestarter) Flush() {
+	mr.flushCalled = true
+}
+func (mr *mockRestarter) PerformRestart() {
+	mr.performRestartCalled = true
 }
 
 type SVNManTestSuite struct {

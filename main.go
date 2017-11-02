@@ -26,6 +26,7 @@ const applicationName = "SVN Manager"
 
 // Components that make up the application
 var httpServer *http.Server
+var apactl apache.Restarter
 
 // Signalling channels
 var shutdownComplete chan struct{}
@@ -95,6 +96,10 @@ func shutdown(signum os.Signal) {
 			log.Warning("HTTP server was not even started yet")
 		}
 
+		if apactl != nil && apactl != apache.Restarter(nil) {
+			apactl.Flush()
+		}
+
 		timeout <- false
 	}()
 
@@ -132,7 +137,8 @@ func main() {
 	}
 	defer conn.Close()
 
-	svn := svnman.Create(&apache.Control{}, cliArgs.repo, cliArgs.apache, applicationName, applicationVersion)
+	apactl = apache.CreateControl(5 * time.Second)
+	svn := svnman.Create(apactl, cliArgs.repo, cliArgs.apache, applicationName, applicationVersion)
 
 	logFields := log.Fields{"listen": cliArgs.listen}
 	httpHandler := httphandler.CreateHTTPHandler(svn)
