@@ -3,13 +3,19 @@
 
 ## System requirements
 
+Requirements are:
+
+- Apache 2
+- RabbitMQ 3
+
 The SVNManager needs to be able to gracefully restart Apache after configuration files have been
 created. This is done by invoking `sudo apache2ctl`, and requires that this command can be performed
 without having to provide a password. Add the following to `/etc/sudoers` to set this up:
 
-    username host = (root) NOPASSWD: /usr/sbin/apache2ctl
+    Cmnd_Alias GRACEFUL = /usr/sbin/apache2ctl configtest, /usr/sbin/apache2ctl graceful
+    www-data ALL = NOPASSWD: GRACEFUL
 
-Replace `username` with the username of the SVNManager, and `/usr/sbin/apache2ctl` with the absolute
+Replace `www-data` with the username of the SVNManager, and `/usr/sbin/apache2ctl` with the absolute
 path of that executable.
 
 SVNManager tests that the command `sudo --non-interactive apache2ctl configtest` can be run
