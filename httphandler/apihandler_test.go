@@ -41,11 +41,14 @@ func (s *HTTPHandlerTestSuite) createRepo(c *check.C, repoInfo svnman.CreateRepo
 	body, err := json.Marshal(repoInfo)
 	assert.Nil(c, err, "marshalling failed")
 
-	req, _ := http.NewRequest("POST", "/api/repo", bytes.NewReader(body))
+	req, _ := http.NewRequest("POST", "/unittests/repo", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 
 	respRec := httptest.NewRecorder()
-	s.api.createRepo(respRec, req)
+	s.route.ServeHTTP(respRec, req)
+
+	return respRec
+}
 
 func (s *HTTPHandlerTestSuite) modifyAccess(c *check.C, repoID string, payload svnman.ModifyAccess) *httptest.ResponseRecorder {
 	body, err := json.Marshal(payload)
