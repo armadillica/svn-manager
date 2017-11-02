@@ -1,7 +1,6 @@
 package httphandler
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/armadillica/svn-manager/svnman"
@@ -66,55 +65,6 @@ func (h *APIHandler) notImplemented(w http.ResponseWriter, r *http.Request) {
 	_, logger := logFieldsForRequest(r)
 	logger.Warning("handler for this URL not implemented")
 	w.WriteHeader(http.StatusNotImplemented)
-}
-
-func (h *APIHandler) createRepo(w http.ResponseWriter, r *http.Request) {
-	logFields, logger := logFieldsForRequest(r)
-
-	repoInfo := svnman.CreateRepo{}
-	if err := decodeJSON(w, r, &repoInfo, "create_repo", logFields); err != nil {
-		return
-	}
-
-	logger.Info("going to create repository")
-	err := h.svn.CreateRepo(repoInfo, logFields)
-	if err == svnman.ErrAlreadyExists {
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintf(w, "repository %q already exists", repoInfo.RepoID)
-		return
-	} else if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintf(w, "unable to create repository: %s", err.Error())
-		logger.WithError(err).Error("unable to create repository")
-		return
-	}
-
-	route, err := h.r.Get("get-repo").URL("repo-id", repoInfo.RepoID)
-	if err != nil {
-		logger.WithError(err).WithField("repo_id", repoInfo.RepoID).Error("unable to find URL for repository")
-	} else {
-		w.Header().Set("Location", route.String())
-	}
-	w.WriteHeader(http.StatusCreated)
-}
-
-func (h *APIHandler) modifyAccess(w http.ResponseWriter, r *http.Request) {
-	logFields, logger := logFieldsForRequest(r)
-	repoID := getRepoID(w, r, logFields)
-	if repoID == "" {
-		return
-	}
-	mods := svnman.ModifyAccess{}
-	if err := decodeJSON(w, r, &mods, "modify_access", logFields); err != nil {
-		return
-	}
-
-	logger.Info("going to modify access on repository")
-	if err := h.svn.ModifyAccess(repoID, mods, logFields); err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintf(w, "unable to modify htpasswd: %s", err.Error())
-		logger.WithError(err).Error("unable to modify htpasswd")
-	}
 }
 
 func (h *APIHandler) reportAccess(w http.ResponseWriter, r *http.Request) {
