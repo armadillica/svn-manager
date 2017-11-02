@@ -61,13 +61,17 @@ func (s *SVNManTestSuite) TestModifyAccessHappy(t *check.C) {
 
 	lines = s.loadHtpasswd(t, repoInfo.RepoID)
 	assert.Equal(t, 2, len(lines))
-	oneline = strings.SplitN(lines[0], ":", 2)
-	assert.Equal(t, "testkees", oneline[0])
-	assert.Equal(t, "$2y$05$cWZN0CJN", oneline[1])
 
-	oneline = strings.SplitN(lines[1], ":", 2)
-	assert.Equal(t, "anotherone", oneline[0])
-	assert.Equal(t, "$2y$05$cW---ZN0CJN", oneline[1])
+	// Those two lines can be in any order.
+	found := map[string]string{}
+	for _, line := range lines {
+		words := strings.SplitN(line, ":", 2)
+		found[words[0]] = words[1]
+	}
+	assert.Equal(t, map[string]string{
+		"testkees":   "$2y$05$cWZN0CJN",
+		"anotherone": "$2y$05$cW---ZN0CJN",
+	}, found)
 
 	// Revoke access from one existing and one non-existing user.
 	if err := s.svn.ModifyAccess(repoInfo.RepoID, ModifyAccess{
