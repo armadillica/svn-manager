@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"syscall"
 	"time"
 
@@ -14,6 +15,7 @@ import (
 
 	"github.com/armadillica/flamenco-sync-server/servertools"
 	"github.com/armadillica/svn-manager/apache"
+	"github.com/armadillica/svn-manager/filelocator"
 	"github.com/armadillica/svn-manager/httphandler"
 	"github.com/armadillica/svn-manager/svnman"
 	"github.com/gorilla/mux"
@@ -142,7 +144,14 @@ func main() {
 
 	logFields := log.Fields{"listen": cliArgs.listen}
 	apiHandler := httphandler.CreateAPIHandler(svn)
-	router := setupHTTPRoutes(apiHandler)
+
+	// Find out where our web root lives.
+	found, err := filelocator.FindFile("ui/templates/index.html")
+	if err != nil {
+		log.WithError(err).Fatal("unable to find index.html")
+	}
+	webUI := httphandler.CreateWebUI(filepath.Dir(filepath.Dir(found)), applicationVersion)
+	router := setupHTTPRoutes(apiHandler, webUI)
 
 	// Create the HTTP server before allowing the shutdown signal Handler
 	// to exist. This prevents a race condition when Ctrl+C is pressed after
@@ -179,10 +188,11 @@ func main() {
 	<-shutdownComplete
 }
 
-func setupHTTPRoutes(apiHandler *httphandler.APIHandler) *mux.Router {
+func setupHTTPRoutes(apiHandler *httphandler.APIHandler, webUI *httphandler.WebUI) *mux.Router {
 	r := mux.NewRouter()
 
 	apiHandler.AddRoutes(r.PathPrefix("/api").Subrouter())
+	webUI.AddRoutes(r)
 
 	return r
 }

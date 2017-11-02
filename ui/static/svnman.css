@@ -1,0 +1,46 @@
+html, body {
+    font-family: Noto, Ubuntu, sans-serif;
+    color: white;
+    background-color: #496977;
+    text-shadow: 0.2ex 0.2ex 0.1ex rgba(0, 0, 0, 0.2);
+}
+
+a, a:link { color: #aef0ff; }
+a:visited { color: #e6fff2; }
+a:hover { color: #d0f7eb; }
+a:active { color: #f7d0d2; }
+
+a.btn-default { color: black; }
+
+h1 img {
+    width: auto;
+    height: 1.1em;
+    float: left;
+    padding-right: 0.5ex;
+}
+
+#managerversion {
+    font-size: small;
+    vertical-align: top;
+    float: right;
+}
+
+input {
+    color: black;
+}
+
+.error {
+    color: #a92a2a;
+    background-color: #ffeaea;
+    border-radius: 0.5ex;
+    border: 2px solid #a92a2a;
+    padding: 1ex;
+    text-shadow: none;
+}
+
+section {
+    max-width: 100%;
+    width: 60ex;
+    margin-left: auto;
+    margin-right: auto;
+}
