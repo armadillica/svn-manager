@@ -39,6 +39,7 @@ func mustTempDir(dir, prefix string) string {
 }
 
 func (s *SVNManTestSuite) SetUpTest(t *check.C) {
+	s.mr = mockRestarter{}
 	s.svn = &SVNMan{
 		restarter:       &s.mr,
 		repoRoot:        mustTempDir("", "reporoot"),
