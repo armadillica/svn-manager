@@ -66,10 +66,6 @@ func (h *APIHandler) notImplemented(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
-func (h *APIHandler) deleteRepo(w http.ResponseWriter, r *http.Request) {
-	h.notImplemented(w, r)
-}
-
 func (h *APIHandler) blockUnblockRepo(w http.ResponseWriter, r *http.Request) {
 	h.notImplemented(w, r)
 }

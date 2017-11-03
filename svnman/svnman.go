@@ -4,6 +4,7 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/armadillica/svn-manager/apache"
 	"github.com/foomo/htpasswd"
@@ -19,13 +20,19 @@ var (
 	ErrAlreadyExists = errors.New("repository with this ID already exists")
 	// ErrNotFound indicates that the requested repository does not exist.
 	ErrNotFound = errors.New("repository with this ID does not exist")
+	// ErrDeletion indicates that a repository deletion failed. Specifics are logged.
+	ErrDeletion = errors.New("unable to delete repository")
 )
+
+// RFC3339fs is a filesystem-friendly version of RFC3339.
+const RFC3339fs = "2006-01-02T15-04-05Z07-00"
 
 // Manager contains the interface of SVNMan, for testing/mocking purposes.
 type Manager interface {
 	CreateRepo(repoInfo CreateRepo, logFields log.Fields) error
 	ModifyAccess(repoID string, mods ModifyAccess, logFields log.Fields) error
 	GetUsernames(repoID string) ([]string, error)
+	DeleteRepo(repoID string, logFields log.Fields) error
 }
 
 // SVNMan provides SVN management operations.
@@ -53,10 +60,22 @@ func (svn *SVNMan) repoPath(repoID string) string {
 	return filepath.Join(svn.repoRoot, prefix, repoID)
 }
 
+func (svn *SVNMan) atticPath(repoID string, timestamp time.Time) string {
+	prefix := string([]rune(repoID)[:2])
+	fname := repoID + "-" + timestamp.Format(RFC3339fs)
+	return filepath.Join(svn.repoRoot, "attic", prefix, fname)
+}
+
 func (svn *SVNMan) apaConfPath(repoID string) string {
 	prefix := string([]rune(repoID)[:2])
 	fname := "svn-" + repoID + ".conf"
 	return filepath.Join(svn.apacheConfigDir, prefix, fname)
+}
+
+func (svn *SVNMan) apaAtticPath(repoID string, timestamp time.Time) string {
+	prefix := string([]rune(repoID)[:2])
+	fname := "svn-" + repoID + ".conf-" + timestamp.Format(RFC3339fs)
+	return filepath.Join(svn.apacheConfigDir, "attic", prefix, fname)
 }
 
 func (svn *SVNMan) htpasswd(repoID string) string {
