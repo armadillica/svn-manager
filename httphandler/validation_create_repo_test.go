@@ -72,12 +72,11 @@ func (s *ValidationTestSuite) TestValidCreatorHappy(t *check.C) {
 }
 
 func (s *ValidationTestSuite) TestValidCreatorUnhappy(t *check.C) {
+	// Too short
 	s.testInvalidCreator(t, "")
 	s.testInvalidCreator(t, "123")
-	s.testInvalidCreator(t, "nonbreaking\u00a0space")
-	s.testInvalidCreator(t, "Mr. New\nline <some@example.com>")
 
-	// 256 characters long
+	// too long
 	s.testInvalidCreator(t, "0bc9cf023ed7fdedbd166237b31e69d1926fc7d0542efdf036b027d493393571a29caebb6e9149a04d8c18910bc63804ca8fea2cb7c5f74400fcad3c75de569db3375c7fcbc9325ac7bd55985fdb532481a1ebd67d147120d640bee16a4c5bd2b3bacf24d8f30bd16e4a71826e446dffbb58552070832caaf2f4ab37c807f0df")
 }
 

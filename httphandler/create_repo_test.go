@@ -98,11 +98,17 @@ func (s *HTTPHandlerTestSuite) TestCreateRepoBadCreator(c *check.C) {
 	repoInfo := svnman.CreateRepo{
 		RepoID:    "valid",
 		ProjectID: "8afae1eb1d171833df73416b",
-		Creator:   "creator\n<email@example.com>",
+		Creator:   "creator™\n<email+valid@example.com>",
 	}
 
-	mockSVN.EXPECT().CreateRepo(repoInfo, gomock.Any()).Times(0)
+	expectRepoInfo := svnman.CreateRepo{
+		RepoID:    "valid",
+		ProjectID: "8afae1eb1d171833df73416b",
+		Creator:   "creator <email+valid@example.com>",
+	}
+
+	mockSVN.EXPECT().CreateRepo(expectRepoInfo, gomock.Any()).Times(1)
 
 	respRec := s.createRepo(c, repoInfo)
-	assert.Equal(c, http.StatusBadRequest, respRec.Code)
+	assert.Equal(c, http.StatusCreated, respRec.Code)
 }

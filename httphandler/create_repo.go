@@ -3,9 +3,12 @@ package httphandler
 import (
 	"fmt"
 	"net/http"
+	"regexp"
 
 	"github.com/armadillica/svn-manager/svnman"
 )
+
+var invalidCreatorRegexp = regexp.MustCompile(`[^\pL\d_\-., @<>'()+]+`)
 
 func (h *APIHandler) createRepo(w http.ResponseWriter, r *http.Request) {
 	logFields, logger := logFieldsForRequest(r)
@@ -14,6 +17,8 @@ func (h *APIHandler) createRepo(w http.ResponseWriter, r *http.Request) {
 	if err := decodeJSON(w, r, &repoInfo, "create_repo", logFields); err != nil {
 		return
 	}
+
+	repoInfo.Creator = invalidCreatorRegexp.ReplaceAllString(repoInfo.Creator, " ")
 
 	logger.Info("repository creation requested")
 	err := h.svn.CreateRepo(repoInfo, logFields)
