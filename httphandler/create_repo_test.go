@@ -72,7 +72,7 @@ func (s *HTTPHandlerTestSuite) TestCreateRepoAlreadyExists(c *check.C) {
 	mockSVN.EXPECT().CreateRepo(repoInfo, gomock.Any()).Times(1).Return(svnman.ErrAlreadyExists)
 
 	respRec := s.createRepo(c, repoInfo)
-	assert.Equal(c, http.StatusBadRequest, respRec.Code)
+	assert.Equal(c, http.StatusConflict, respRec.Code)
 }
 
 func (s *HTTPHandlerTestSuite) TestCreateRepoBadProjectID(c *check.C) {

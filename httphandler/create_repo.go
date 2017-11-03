@@ -18,7 +18,7 @@ func (h *APIHandler) createRepo(w http.ResponseWriter, r *http.Request) {
 	logger.Info("going to create repository")
 	err := h.svn.CreateRepo(repoInfo, logFields)
 	if err == svnman.ErrAlreadyExists {
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusConflict)
 		fmt.Fprintf(w, "repository %q already exists", repoInfo.RepoID)
 		return
 	} else if err != nil {
