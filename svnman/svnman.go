@@ -53,6 +53,12 @@ func (svn *SVNMan) repoPath(repoID string) string {
 	return filepath.Join(svn.repoRoot, prefix, repoID)
 }
 
+func (svn *SVNMan) apaConfPath(repoID string) string {
+	prefix := string([]rune(repoID)[:2])
+	fname := "svn-" + repoID + ".conf"
+	return filepath.Join(svn.apacheConfigDir, prefix, fname)
+}
+
 func (svn *SVNMan) htpasswd(repoID string) string {
 	return filepath.Join(svn.repoPath(repoID), "htpasswd")
 }

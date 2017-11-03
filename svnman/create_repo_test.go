@@ -59,7 +59,7 @@ func (s *SVNManTestSuite) TestCreateRepoHappy(t *check.C) {
 	}
 
 	// Check Apache location directive file.
-	apache := filepath.Join(s.svn.apacheConfigDir, "svn-"+repoInfo.RepoID+".conf")
+	apache := filepath.Join(s.svn.apacheConfigDir, "12", "svn-"+repoInfo.RepoID+".conf")
 	apabytes, err := ioutil.ReadFile(apache)
 	if err != nil {
 		assert.Fail(t, err.Error(), "file %q should exist", apache)
