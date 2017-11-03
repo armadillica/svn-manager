@@ -52,7 +52,7 @@ func (svn *SVNMan) CreateRepo(repoInfo CreateRepo, logFields log.Fields) error {
 		return ErrAlreadyExists
 	}
 
-	logger.Info("going to create repository")
+	logger.Info("creating repository")
 	if err := os.MkdirAll(repodir, 0750); err != nil {
 		return err
 	}
