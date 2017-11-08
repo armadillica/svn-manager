@@ -54,7 +54,6 @@ if [ -z "$TARGET" -o "$TARGET" = "darwin"  ]; then build darwin  amd64      ; fi
 EOT
 
 # Package together with the static files
-PREFIX="svn-manager-$APP_VERSION"
 if [ -d $PREFIX ]; then
     rm -rf $PREFIX
 fi
