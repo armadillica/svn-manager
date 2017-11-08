@@ -48,6 +48,4 @@ func (h *APIHandler) getRepo(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "unable to encode reply as JSON: %s", err)
 		return
 	}
-
-	return
 }
