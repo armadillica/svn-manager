@@ -23,7 +23,7 @@ import (
 	"github.com/streadway/amqp"
 )
 
-const applicationVersion = "0.1-dev"
+const applicationVersion = "0.2-dev"
 const applicationName = "SVN Manager"
 
 // Components that make up the application
