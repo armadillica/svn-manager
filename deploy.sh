@@ -6,7 +6,7 @@ DEPLOYPATH=/opt/  # end in slash!
 SSH="ssh -o ClearAllForwardings=yes"
 
 echo "======== Building a statically-linked svnman"
-#bash docker/build-via-docker.sh linux
+bash docker/build-via-docker.sh linux
 source ./docker/_version.sh
 
 echo "======== Deploying onto $DEPLOYHOST"
@@ -15,7 +15,8 @@ $SSH $DEPLOYHOST -t <<EOT
 set -ex
 cd $DEPLOYPATH
 tar zxvf ~/$PREFIX-linux.tar.gz
-ln -sf $PREFIX svn-manager
+rm -f svn-manager
+ln -s $PREFIX svn-manager
 EOT
 
 echo
