@@ -25,7 +25,7 @@ func (s *HTTPHandlerTestSuite) createRepo(c *check.C, repoInfo svnman.CreateRepo
 	return respRec
 }
 
-func (s *HTTPHandlerTestSuite) TestCreateRepo(c *check.C) {
+func (s *HTTPHandlerTestSuite) TestCreateRepoHappy(c *check.C) {
 	mockCtrl, mockSVN := s.mockSVN(c)
 	defer mockCtrl.Finish()
 
@@ -41,6 +41,26 @@ func (s *HTTPHandlerTestSuite) TestCreateRepo(c *check.C) {
 
 	assert.Equal(c, 201, respRec.Code)
 	assert.Equal(c, "/unittests/repo/4444", respRec.Header().Get("Location"))
+}
+
+func (s *HTTPHandlerTestSuite) TestCreateRepoLowerCase(c *check.C) {
+	mockCtrl, mockSVN := s.mockSVN(c)
+	defer mockCtrl.Finish()
+
+	repoInfo := svnman.CreateRepo{
+		RepoID:    "UPPERCASE",
+		ProjectID: "8afae1eb1d171833df73416b",
+		Creator:   "creator <email@example.com>",
+	}
+	expectRepoInfo := repoInfo
+	expectRepoInfo.RepoID = "uppercase"
+	mockSVN.EXPECT().CreateRepo(expectRepoInfo, gomock.Any()).Times(1)
+
+	resp := repoCreationResult{}
+	respRec := s.createRepo(c, repoInfo)
+	parseJSON(c, respRec, http.StatusCreated, &resp)
+	assert.Equal(c, "/unittests/repo/uppercase", respRec.Header().Get("Location"))
+	assert.Equal(c, "uppercase", resp.RepoID)
 }
 
 func (s *HTTPHandlerTestSuite) TestCreateRepoBadRepoID(c *check.C) {

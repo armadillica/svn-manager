@@ -1,14 +1,21 @@
 package httphandler
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"regexp"
+	"strings"
 
 	"github.com/armadillica/svn-manager/svnman"
 )
 
 var invalidCreatorRegexp = regexp.MustCompile(`[^\pL\d_\-., @<>'()+]+`)
+
+// repoCreationResult is sent as JSON response to /api/repo POST requests.
+type repoCreationResult struct {
+	RepoID string `json:"repo_id"`
+}
 
 func (h *APIHandler) createRepo(w http.ResponseWriter, r *http.Request) {
 	logFields, logger := logFieldsForRequest(r)
@@ -18,6 +25,9 @@ func (h *APIHandler) createRepo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Convert repo ID to lower case, so limit the number of prefixes we have
+	// in the repository directory.
+	repoInfo.RepoID = strings.ToLower(repoInfo.RepoID)
 	repoInfo.Creator = invalidCreatorRegexp.ReplaceAllString(repoInfo.Creator, " ")
 
 	logger.Info("repository creation requested")
@@ -39,5 +49,15 @@ func (h *APIHandler) createRepo(w http.ResponseWriter, r *http.Request) {
 	} else {
 		w.Header().Set("Location", route.String())
 	}
+
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
+	reply := repoCreationResult{RepoID: repoInfo.RepoID}
+	enc := json.NewEncoder(w)
+	if err := enc.Encode(reply); err != nil {
+		logger.WithError(err).Error("unable to encode JSON")
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprintf(w, "unable to encode reply as JSON: %s", err)
+		return
+	}
 }
